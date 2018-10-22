@@ -96,22 +96,23 @@ func Routine() {
 		newBlock, _ := eth.BlockByNumber(context.TODO(), nil)
 		networkId, _ = eth.NetworkID(context.TODO())
 
-		if currentBlock == nil {
-			lastBlockUpdate = time.Now()
-			currentBlock = newBlock
-			fmt.Printf("Received a new block #%v\n", newBlock.NumberU64())
-			diff := lastBlockUpdate.Sub(t1)
-			gethInfo.LoadTime = diff.Seconds()
-			continue
+		if newBlock != nil {
+			if currentBlock == nil {
+				lastBlockUpdate = time.Now()
+				currentBlock = newBlock
+				fmt.Printf("Received a new block #%v\n", newBlock.NumberU64())
+				diff := lastBlockUpdate.Sub(t1)
+				gethInfo.LoadTime = diff.Seconds()
+				continue
+			}
+			if newBlock.NumberU64() > currentBlock.NumberU64() {
+				fmt.Printf("Received a new block #%v\n", newBlock.NumberU64())
+				currentBlock = newBlock
+				lastBlockUpdate = time.Now()
+				diff := lastBlockUpdate.Sub(t1)
+				gethInfo.LoadTime = diff.Seconds()
+			}
 		}
-		if newBlock.NumberU64() > currentBlock.NumberU64() {
-			fmt.Printf("Received a new block #%v\n", newBlock.NumberU64())
-			currentBlock = newBlock
-			lastBlockUpdate = time.Now()
-			diff := lastBlockUpdate.Sub(t1)
-			gethInfo.LoadTime = diff.Seconds()
-		}
-
 		time.Sleep(500 * time.Millisecond)
 	}
 }
